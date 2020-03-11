@@ -6,10 +6,14 @@ const logger = require("morgan");
 const mongoose = require("mongoose");
 const cors = require("cors");
 
+const loginRouter = require("./routes/login");
+const postRouter = require("./routes/post");
+const commentRouter = require("./routes/comment");
+
 const mongoDB = process.env.DB_DEV;
 mongoose.connect(mongoDB, { useUnifiedTopology: true, useNewUrlParser: true });
-const db = mongoose.Connection;
-db.once("error", console.error.bind(console, "mongo connection error"));
+const db = mongoose.connection;
+db.on("error", console.error.bind(console, "mongo connection error"));
 
 var app = express();
 
@@ -18,6 +22,10 @@ app.use(logger("dev"));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
+
+app.use("/login", loginRouter);
+app.use("/posts", postRouter);
+app.use("/comments", commentRouter);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
@@ -32,7 +40,7 @@ app.use(function(err, req, res, next) {
 
   // render the error page
   res.status(err.status || 500);
-  res.render("error");
+  res.json();
 });
 
 module.exports = app;
