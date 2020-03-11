@@ -8,23 +8,29 @@ const bcrypt = require("bcryptjs");
 const Author = require("./models/author");
 
 passport.use(
-  new LocalStrategy(function(username, password, done) {
-    Author.findOne({ username: username }, function(err, author) {
-      if (err) {
-        return done(err);
-      }
-      if (!author) {
-        return done(null, false, { message: "incorrect username" });
-      }
-      bcrypt.compare(password, author.password, (err, res) => {
-        if (res) {
-          return done(null, author);
-        } else {
-          return done(null, false, { message: "incorrect password" });
+  new LocalStrategy(
+    {
+      usernameField: "username",
+      passwordField: "password"
+    },
+    function(username, password, done) {
+      Author.findOne({ username: username }, function(err, author) {
+        if (err) {
+          return done(err);
         }
+        if (!author) {
+          return done(null, false, { message: "incorrect username" });
+        }
+        bcrypt.compare(password, author.password, (err, res) => {
+          if (res) {
+            return done(null, author, { message: "logged in" });
+          } else {
+            return done(null, false, { message: "incorrect password" });
+          }
+        });
       });
-    });
-  })
+    }
+  )
 );
 
 passport.use(
@@ -45,3 +51,5 @@ passport.use(
     }
   )
 );
+
+module.exports = passport;
