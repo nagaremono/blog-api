@@ -23,46 +23,46 @@ router.get("/:id", function(req, res, next) {
   });
 });
 
-router.post(
-  "/", 
-  passport.authenticate("jwt", { session: false }), 
-  function(req, res, next) {
-    const newPost = new Post({
+router.post("/", passport.authenticate("jwt", { session: false }), function(
+  req,
+  res,
+  next
+) {
+  const newPost = new Post({
+    title: req.body.title,
+    text: req.body.text,
+    public: req.body.public === "public"
+  });
+
+  newPost.save((err, post) => {
+    if (err) {
+      return next(err);
+    }
+    res.json(post);
+  });
+});
+
+router.put("/:id", passport.authenticate("jwt", { session: false }), function(
+  req,
+  res,
+  next
+) {
+  Post.findByIdAndUpdate(
+    req.params.id,
+    {
       title: req.body.title,
       text: req.body.text,
       public: req.body.public === "public"
-    });
-
-    newPost.save((err, post) => {
+    },
+    (err, post) => {
       if (err) {
         return next(err);
       }
+
       res.json(post);
-    });
-  }
-);
-
-router.put(
-  "/:id", 
-  passport.authenticate("jwt", { session: false }), 
-  function(req, res, next) {
-    Post.findByIdAndUpdate(
-      req.params.id,
-      {
-        title: req.body.title,
-        text: req.body.text,
-        public: req.body.public === "public"
-      },
-      (err, post) => {
-        if (err) {
-          return next(err);
-        }
-
-        res.json(post);
-      }
-    );
-  }
-);
+    }
+  );
+});
 
 router.delete(
   "/:id",
